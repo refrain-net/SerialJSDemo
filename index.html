@@ -2,12 +2,17 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,width=device-width">
+    <title>E3S - Evaluation Schedule Simulation System</title>
+    <link href="favicon.png" rel="icon">
+    <link href="style.css" rel="stylesheet">
   </head>
   <body>
     <input id="input_command" type="text">
     <button id="button_send">SEND</button>
     <button id="button_query">QUERY</button>
     <input id="input_response" type="text">
+    <script src="/res/utils.js"></script>
     <script>
 const port = await navigator.serial.requestPort();
 await port.open({baudRate: 115200});
