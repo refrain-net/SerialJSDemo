@@ -14,34 +14,36 @@
     <input id="input_response" type="text">
     <script src="/res/utils.js"></script>
     <script>
-const port = await navigator.serial.requestPort();
-await port.open({baudRate: 115200});
-const inputCommand = document.querySelector('#input_command');
-const buttonSend = document.querySelector('#button_send');
-const buttonQuery = document.querySelector('#button_query');
-const inputResponse = document.querySelector('#input_response');
-buttonSend.onclick = _ => sendCommand(inputCommand.value);
-buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
-async function queryCommand () {
-  const reader = port.readable.getReader();
-  try {
-    const {done, value} = await reader.read();
-    if (value) {
-      return new TextDecoder().decode(value);
+(async () => {
+  const port = await navigator.serial.requestPort();
+  await port.open({baudRate: 115200});
+  const inputCommand = document.querySelector('#input_command');
+  const buttonSend = document.querySelector('#button_send');
+  const buttonQuery = document.querySelector('#button_query');
+  const inputResponse = document.querySelector('#input_response');
+  buttonSend.onclick = _ => sendCommand(inputCommand.value);
+  buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
+  async function queryCommand () {
+    const reader = port.readable.getReader();
+    try {
+      const {done, value} = await reader.read();
+      if (value) {
+        return new TextDecoder().decode(value);
+      }
+    } finally {
+      reader.releaseLock();
     }
-  } finally {
-    reader.releaseLock();
+    return '';
   }
-  return '';
-}
-async function sendCommand (commandString) {
-  const writer = port.writable.getWriter();
-  try {
-    await writer.write(new TextEncoder().encode(commandString));
-  } finally {
-    writer.releaseLock();
+  async function sendCommand (commandString) {
+    const writer = port.writable.getWriter();
+    try {
+      await writer.write(new TextEncoder().encode(commandString));
+    } finally {
+      writer.releaseLock();
+    }
   }
-}
+})();
     </script>
   </body>
 </html>
