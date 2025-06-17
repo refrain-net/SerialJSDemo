@@ -8,19 +8,26 @@
     <link href="style.css" rel="stylesheet">
   </head>
   <body>
+    <button id="button_launch">LAUNCH</button>
     <input id="input_command" type="text">
     <button id="button_send">SEND</button>
     <button id="button_query">QUERY</button>
     <input id="input_response" type="text">
     <script src="/res/utils.js"></script>
     <script>
-(async () => {
-  const port = await navigator.serial.requestPort();
-  await port.open({baudRate: 115200});
-  const inputCommand = document.querySelector('#input_command');
-  const buttonSend = document.querySelector('#button_send');
-  const buttonQuery = document.querySelector('#button_query');
-  const inputResponse = document.querySelector('#input_response');
+const buttonLaunch = document.querySelector('#button_launch');
+const inputCommand = document.querySelector('#input_command');
+const buttonSend = document.querySelector('#button_send');
+const buttonQuery = document.querySelector('#button_query');
+const inputResponse = document.querySelector('#input_response');
+buttonLaunch.onclick = async () => {
+  let port;
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({baudRate: 115200});
+  } catch (error) {
+    return window.alert(error);
+  }
   buttonSend.onclick = _ => sendCommand(inputCommand.value);
   buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
   async function queryCommand () {
@@ -43,7 +50,7 @@
       writer.releaseLock();
     }
   }
-})();
+};
     </script>
   </body>
 </html>
