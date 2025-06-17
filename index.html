@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <input id="input_command" type="text">
+    <button id="button_send">SEND</button>
+    <button id="button_query">QUERY</button>
+    <input id="input_response" type="text">
+    <script>
+const port = await navigator.serial.requestPort();
+await port.open({baudRate: 115200});
+const inputCommand = document.querySelector('#input_command');
+const buttonSend = document.querySelector('#button_send');
+const buttonQuery = document.querySelector('#button_query');
+const inputResponse = document.querySelector('#input_response');
+buttonSend.onclick = _ => sendCommand(inputCommand.value);
+buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
+async function queryCommand () {
+  const reader = port.readable.getReader();
+  try {
+    const {done, value} = await reader.read();
+    if (value) {
+      return new TextDecoder().decode(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return '';
+}
+async function sendCommand (commandString) {
+  const writer = port.writable.getWriter();
+  try {
+    await writer.write(new TextEncoder().encode(commandString));
+  } finally {
+    writer.releaseLock();
+  }
+}
+    </script>
+  </body>
+</html>
