@@ -23,35 +23,40 @@ const inputResponse = document.querySelector('#input_response');
 buttonLaunch.onclick = async () => {
   let port;
   try {
-    port = await navigator.serial.requestPort();
-    await port.open({baudRate: 9600});
-    console.log(port);
+    serialPort = await navigator.serial.requestPort();
+    await serialPort.open({baudRate: 9600});
+    console.log(serialPort);
   } catch (error) {
-    return window.alert(error);
-  }
-  buttonSend.onclick = _ => sendCommand(inputCommand.value);
-  buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
-  async function queryCommand () {
-    const reader = port.readable.getReader();
-    try {
-      const {done, value} = await reader.read();
-      if (value) {
-        return new TextDecoder().decode(value);
-      }
-    } finally {
-      reader.releaseLock();
-    }
-    return '';
-  }
-  async function sendCommand (commandString) {
-    const writer = port.writable.getWriter();
-    try {
-      await writer.write(new TextEncoder().encode(commandString));
-    } finally {
-      writer.releaseLock();
-    }
+    console.error(error);
   }
 };
+buttonSend.onclick = _ => sendCommand(inputCommand.value);
+buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
+async function queryCommand () {
+  const reader = serialPort.readable.getReader();
+  let ret = '';
+  try {
+    const {done, value} = await reader.read();
+    if (value) {
+      ret = new TextDecoder().decode(value);
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    reader.releaseLock();
+  }
+  return ret;
+}
+async function sendCommand (commandString) {
+  const writer = serialPort.writable.getWriter();
+  try {
+    await writer.write(new TextEncoder().encode(commandString));
+  } catch (error) {
+    console.error(error);
+  } finally {
+    writer.releaseLock();
+  }
+}
     </script>
   </body>
 </html>
