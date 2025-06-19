@@ -25,7 +25,7 @@ buttonLaunch.onclick = async () => {
   try {
     serialPort = await navigator.serial.requestPort();
     await serialPort.open({baudRate: 9600});
-    console.log(serialPort);
+    console.log(`serialPort:=${serialPort}`);
   } catch (error) {
     console.error(error);
   }
@@ -34,26 +34,27 @@ buttonSend.onclick = async () => await sendCommand(inputCommand.value);
 buttonQuery.onclick = async () => inputResponse.value = await queryCommand();
 async function queryCommand () {
   const reader = serialPort.readable.getReader();
-  let ret = '';
+  let data = '';
   try {
     const {done, value} = await reader.read();
     if (value) {
-      ret = new TextDecoder().decode(value);
+      data = new TextDecoder().decode(value);
     }
   } catch (error) {
     console.error(error);
   } finally {
     reader.releaseLock();
   }
-  console.log(ret);
-  return ret;
+  console.log(`data:=${data}`);
+  return data;
 }
 async function sendCommand (commandString) {
-  console.log(commandString);
+  console.log(`commandString:=${commandString}`);
   const writer = serialPort.writable.getWriter();
   try {
     let data = new TextEncoder().encode(commandString);
-    await writer.write(data);
+    console.log(`data:=${data}`);
+    await writer.write(`${data}\n`); // 終端文字にCRやLF、CR+LFが必要
   } catch (error) {
     console.error(error);
   } finally {
