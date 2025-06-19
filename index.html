@@ -52,9 +52,9 @@ async function sendCommand (commandString) {
   console.log(`commandString:=${commandString}`);
   const writer = serialPort.writable.getWriter();
   try {
-    let data = new TextEncoder().encode(commandString);
+    let data = new TextEncoder().encode(`${commandString}\n`);
     console.log(`data:=${data}`);
-    await writer.write(`${data}\n`); // 終端文字にCRやLF、CR+LFが必要
+    await writer.write(data); // 終端文字にCRやLF、CR+LFが必要
   } catch (error) {
     console.error(error);
   } finally {
